@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/* Night desk: an indigo-black ground so news photography carries the colour, and the only
+   hue the interface itself spends is the urgency scale in lib/scoring.ts. */
+@theme {
+  --color-paper: #0e1120;
+  --color-surface: #161a2e;
+  --color-ink: #e9eaf4;
+  --color-muted: #8a90ab;
+  --color-hairline: #262b42;
+  --color-accent: #7aa2ff;
+
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), ui-serif, Georgia, serif;
+  --font-mono: var(--font-mono), ui-monospace, monospace;
+}
+
+/* Tells the browser to render scrollbars, form controls and focus rings dark to match. */
+:root {
+  color-scheme: dark;
+}
+
+/* Motion is an accent here, never information — so it can go entirely. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
