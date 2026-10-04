@@ -1,26 +1,68 @@
 @import "tailwindcss";
 
-/* Night desk: an indigo-black ground so news photography carries the colour, and the only
-   hue the interface itself spends is the urgency scale in lib/scoring.ts. */
-@theme {
-  --color-paper: #0e1120;
-  --color-surface: #161a2e;
-  --color-ink: #e9eaf4;
-  --color-muted: #8a90ab;
-  --color-hairline: #262b42;
-  --color-accent: #7aa2ff;
-
-  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-display), ui-serif, Georgia, serif;
-  --font-mono: var(--font-mono), ui-monospace, monospace;
-}
-
-/* Tells the browser to render scrollbars, form controls and focus rings dark to match. */
+/* Bento: soft tiles on a cool ground. The interface is neutral; the only hue it spends is the
+   urgency scale (lib/scoring.ts), which tints text tiles and draws the weight mark. Those values
+   are tokens so each one is retuned for contrast on light and dark. */
 :root {
-  color-scheme: dark;
+  --paper: #eceef2;
+  --surface: #fafbfc;
+  --surface-2: #e2e5ea;
+  --ink: #12141a;
+  --muted: #5a5f6b;
+  --hairline: #d5d9e0;
+
+  --urgency-low: #0d8a73;
+  --urgency-medium: #b06a00;
+  --urgency-high: #d0284a;
+
+  color-scheme: light;
 }
 
-/* Motion is an accent here, never information — so it can go entirely. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0b0c10;
+    --surface: #15171d;
+    --surface-2: #1d2028;
+    --ink: #eceef3;
+    --muted: #979cab;
+    --hairline: #262a33;
+
+    --urgency-low: #35d0b0;
+    --urgency-medium: #ffb020;
+    --urgency-high: #ff5c78;
+
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-hairline: var(--hairline);
+
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+/* Tiles rise in as they arrive, staggered by their place in the page, so a new page of stories
+   reads as one delivery rather than a jump. Gated so reduced motion never sees it. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes tile-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.985);
+    }
+  }
+  .tile-in {
+    animation: tile-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--i, 0) * 45ms);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,

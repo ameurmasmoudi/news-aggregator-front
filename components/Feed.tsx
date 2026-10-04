@@ -3,9 +3,66 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { ClusterSummary } from "@/lib/types";
 import { WINDOW_PHRASE, type FeedSort, type FeedWindow } from "@/lib/api";
-import ClusterCard from "./ClusterCard";
+import ClusterCard, { type TileKind } from "./ClusterCard";
 
-const LIMIT = 20;
+// Two bento blocks per page (see layout below), so a page never ends mid-block and the grid
+// never has to reshuffle tiles a reader has already seen when the next page arrives.
+const LIMIT = 18;
+
+type Slot = { kind: TileKind; span: string };
+
+const HERO: Slot = { kind: "hero", span: "sm:col-span-2 lg:col-span-2 lg:row-span-2" };
+const TALL: Slot = { kind: "tall", span: "lg:row-span-2" };
+const WIDE: Slot = { kind: "wide", span: "sm:col-span-2 lg:col-span-2" };
+const PANO: Slot = { kind: "pano", span: "sm:col-span-2 lg:col-span-3" };
+const SMALL: Slot = { kind: "small", span: "" };
+
+/**
+ * Two nine-tile blocks that each fill exactly four rows of a four-column grid, alternated so
+ * the big tile swaps sides down the page. Both also tile a two-column grid without holes.
+ *
+ *   A: [ HERO  ][s][s]     B: [s][s][ HERO  ]
+ *      [ HERO  ][WIDE ]       [WIDE ][ HERO  ]
+ *      [T][s][s][s]           [  PANO   ][T]
+ *      [T][  PANO   ]         [s][s][s][T]
+ */
+const BLOCK_A: Slot[] = [HERO, SMALL, SMALL, WIDE, TALL, SMALL, SMALL, SMALL, PANO];
+const BLOCK_B: Slot[] = [SMALL, SMALL, HERO, WIDE, PANO, TALL, SMALL, SMALL, SMALL];
+
+/** Leftovers that don't make a block: full rows of up to four, each row filled edge to edge. */
+function rows(n: number): Slot[] {
+  const out: Slot[] = [];
+  for (let left = n; left > 0; left -= 4) {
+    const k = Math.min(left, 4);
+    if (k === 1) out.push({ kind: "pano", span: "sm:col-span-2 lg:col-span-4" });
+    else if (k === 2) out.push(WIDE, WIDE);
+    else if (k === 3) out.push(WIDE, SMALL, SMALL);
+    else out.push(SMALL, SMALL, SMALL, SMALL);
+  }
+  return out;
+}
+
+function layout(n: number): Slot[] {
+  if (n === 0) return [];
+  if (n === 1) return [{ kind: "hero", span: "sm:col-span-2 lg:col-span-4 lg:row-span-2" }];
+  if (n < 9) {
+    // A short feed (a narrow search, a quiet window) still leads with a hero, and fills the
+    // 2x2 beside it before falling back to plain rows.
+    const right = Math.min(n - 1, 4);
+    const beside: Slot[][] = [
+      [],
+      [{ kind: "tall", span: "sm:col-span-2 lg:col-span-2 lg:row-span-2" }],
+      [WIDE, WIDE],
+      [WIDE, SMALL, SMALL],
+      [SMALL, SMALL, SMALL, SMALL],
+    ];
+    return [HERO, ...beside[right], ...rows(n - 1 - right)];
+  }
+  const full = n - (n % 9);
+  const out: Slot[] = [];
+  for (let i = 0; i < full; i++) out.push((Math.floor(i / 9) % 2 ? BLOCK_B : BLOCK_A)[i % 9]);
+  return [...out, ...rows(n % 9)];
+}
 
 export default function Feed({
   initial,
@@ -126,12 +183,11 @@ export default function Feed({
     widen.set("window", "all");
 
     return (
-      <div className="flex flex-col items-center gap-4 py-16 text-center">
-        <p className="font-mono text-sm text-muted">
+      <div className="flex min-h-72 flex-col items-start justify-end gap-4 rounded-[20px] bg-surface p-7">
+        <p className="max-w-[36ch] font-display text-2xl font-semibold leading-snug tracking-tight">
           {q ? (
             <>
-              No matches for <span className="text-ink">“{q}”</span> in{" "}
-              {WINDOW_PHRASE[feedWindow]}
+              No matches for “{q}” in {WINDOW_PHRASE[feedWindow]}
             </>
           ) : (
             <>Nothing in {WINDOW_PHRASE[feedWindow]}</>
@@ -141,7 +197,7 @@ export default function Feed({
         {feedWindow !== "all" && (
           <Link
             href={`/?${widen.toString()}`}
-            className="rounded-full border border-hairline px-4 py-1.5 font-mono text-xs text-ink hover:bg-white/[0.06]"
+            className="rounded-full bg-ink px-5 py-2 text-sm font-medium text-paper transition-transform hover:-translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:scale-[0.97]"
           >
             Search all time
           </Link>
@@ -150,31 +206,55 @@ export default function Feed({
     );
   }
 
-  const [lead, ...rest] = items;
+  const slots = layout(items.length);
 
   return (
     <>
-      <div ref={grid} className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        <ClusterCard cluster={lead} now={now} lead />
-        {rest.map((c, i) => (
-          <ClusterCard key={c.id} cluster={c} now={now} index={i + 1} />
+      <div
+        ref={grid}
+        className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:auto-rows-[16.5rem] lg:grid-cols-4"
+      >
+        {items.map((c, i) => (
+          <ClusterCard
+            key={c.id}
+            cluster={c}
+            now={now}
+            kind={slots[i].kind}
+            className={slots[i].span}
+            index={i % LIMIT}
+          />
         ))}
+        {loading && <BlockSkeleton />}
       </div>
 
       <div ref={sentinel} className="h-px w-full" aria-hidden />
 
-      <div className="py-8 text-center">
-        {loading && <span className="font-mono text-xs text-muted">Loading…</span>}
+      <div className="flex items-center justify-center gap-3 py-8 text-sm text-muted" aria-live="polite">
         {error && (
-          <button
-            onClick={loadMore}
-            className="rounded-full border border-hairline px-4 py-1.5 font-mono text-xs text-ink hover:bg-white/[0.06]"
-          >
-            Retry
-          </button>
+          <>
+            <span>Couldn&apos;t load more stories.</span>
+            <button
+              onClick={loadMore}
+              className="rounded-full bg-ink px-4 py-1.5 font-medium text-paper transition-transform hover:-translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:scale-[0.97]"
+            >
+              Retry
+            </button>
+          </>
         )}
-        {!hasMore && !loading && <span className="font-mono text-xs text-muted">End of feed</span>}
+        {!hasMore && !loading && <span>You&apos;re all caught up</span>}
       </div>
+    </>
+  );
+}
+
+/** Stands in for the next block while it loads: one row of four, shaped like what's coming. */
+function BlockSkeleton() {
+  const block = "rounded-[20px] bg-surface motion-safe:animate-pulse";
+  return (
+    <>
+      <div className={`${block} min-h-44 sm:col-span-2 lg:col-span-2`} aria-hidden />
+      <div className={`${block} min-h-44`} aria-hidden />
+      <div className={`${block} min-h-44`} aria-hidden />
     </>
   );
 }

@@ -14,7 +14,7 @@ export default function CategoryBar() {
   function go(next: URLSearchParams) {
     next.delete("offset");
     const qs = next.toString();
-    // Always land on the feed — chips are filters, not page-local state.
+    // Always land on the feed: tabs are filters, not page-local state.
     router.push(qs ? `/?${qs}` : "/");
   }
 
@@ -36,23 +36,25 @@ export default function CategoryBar() {
   const isAll = onFeed && !activeCategory && !activeTunisia;
 
   return (
-    <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <Chip active={isAll} onClick={() => selectCategory(null)}>
+    <div className="-mx-3 flex items-center gap-1.5 overflow-x-auto px-3 [scrollbar-width:none] sm:-mx-5 sm:px-5 lg:mx-0 lg:flex-wrap lg:px-0 [&::-webkit-scrollbar]:hidden">
+      <Tab active={isAll} onClick={() => selectCategory(null)}>
         All
-      </Chip>
-      <Chip active={activeTunisia} onClick={selectTunisia}>
+      </Tab>
+      <Tab active={activeTunisia} onClick={selectTunisia}>
         Tunisia
-      </Chip>
+      </Tab>
+      {/* Tunisia is a region filter, the rest are topics: a rule keeps them from reading as one list. */}
+      <span aria-hidden className="mx-1 h-5 w-px shrink-0 bg-hairline" />
       {CATEGORIES.map((c) => (
-        <Chip key={c} active={activeCategory === c} onClick={() => selectCategory(c)}>
+        <Tab key={c} active={activeCategory === c} onClick={() => selectCategory(c)}>
           {c}
-        </Chip>
+        </Tab>
       ))}
     </div>
   );
 }
 
-function Chip({
+function Tab({
   active,
   onClick,
   children,
@@ -65,10 +67,8 @@ function Chip({
     <button
       onClick={onClick}
       aria-pressed={active}
-      className={`inline-flex shrink-0 items-center rounded-full border px-3 py-1 font-mono text-[11px] uppercase tracking-widest transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-        active
-          ? "border-ink bg-ink text-paper"
-          : "border-hairline bg-surface text-muted hover:border-ink/40 hover:text-ink"
+      className={`shrink-0 rounded-full px-3.5 py-1.5 text-[13px] font-medium capitalize transition-[background-color,color,transform] duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:scale-[0.96] ${
+        active ? "bg-ink text-paper" : "bg-surface text-muted hover:bg-surface-2 hover:text-ink"
       }`}
     >
       {children}

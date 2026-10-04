@@ -3,16 +3,16 @@ import Link from "next/link";
 
 export default function Error({ reset }: { error: Error; reset: () => void }) {
   return (
-    <div className="py-20 text-center">
-      <p className="font-display text-xl text-ink">The feed didn&apos;t load.</p>
-      <p className="mx-auto mt-2 max-w-md font-mono text-xs leading-relaxed text-muted">
-        The backend may be down, or this particular view may be failing on its own — some filter
+    <div className="flex min-h-72 flex-col items-start justify-end gap-4 rounded-[20px] bg-surface p-7">
+      <p className="font-display text-2xl font-semibold tracking-tight">The feed didn&apos;t load.</p>
+      <p className="max-w-[56ch] text-sm leading-relaxed text-muted">
+        The backend may be down, or this particular view may be failing on its own. Some filter
         and window combinations can error while the rest of the feed is fine.
       </p>
-      <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+      <div className="mt-1 flex flex-wrap items-center gap-3">
         <button
           onClick={reset}
-          className="rounded-full border border-ink px-5 py-2 text-sm text-ink transition-colors hover:bg-ink hover:text-paper"
+          className="rounded-full bg-ink px-5 py-2 text-sm font-medium text-paper transition-transform hover:-translate-y-px focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:scale-[0.97]"
         >
           Try again
         </button>
@@ -24,7 +24,7 @@ export default function Error({ reset }: { error: Error; reset: () => void }) {
         */}
         <Link
           href="/"
-          className="rounded-full border border-hairline px-5 py-2 text-sm text-muted transition-colors hover:border-ink/40 hover:text-ink"
+          className="rounded-full bg-surface-2 px-5 py-2 text-sm font-medium text-ink transition-colors hover:bg-hairline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:scale-[0.97]"
         >
           Back to the feed
         </Link>

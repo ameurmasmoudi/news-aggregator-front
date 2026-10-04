@@ -2,7 +2,7 @@ import { getClusters, parseQuery, parseSort, parseWindow } from "@/lib/api";
 import { clockFrom } from "@/lib/scoring";
 import Feed from "@/components/Feed";
 
-const LIMIT = 20;
+const LIMIT = 18;
 
 export default async function FeedPage({
   searchParams,

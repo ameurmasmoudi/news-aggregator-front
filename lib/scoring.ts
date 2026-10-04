@@ -95,15 +95,16 @@ export function cardFacets(cluster: Faceted): Facet[] {
 }
 
 // Colour is a data channel here, not decoration: the only hue on a card encodes urgency.
-// A heat spectrum — cool teal is something to read later, hot rose is happening now.
+// A heat spectrum, cool teal is something to read later, hot rose is happening now. The values
+// are theme tokens (app/globals.css) so each one is retuned for contrast on light and dark.
 const URGENCY_COLORS: Record<string, string> = {
-  low: "#35d0b0",
-  medium: "#ffb020",
-  high: "#ff4d6d",
+  low: "var(--urgency-low)",
+  medium: "var(--urgency-medium)",
+  high: "var(--urgency-high)",
 };
 
-/** Neutral fill for anything that isn't urgency — carries length, not meaning. */
-const NEUTRAL_BAR = "#8a90ab";
+/** Neutral fill for anything that isn't urgency: carries length, not meaning. */
+const NEUTRAL_BAR = "var(--muted)";
 
 export function urgencyColor(urgency: string | null): string {
   return URGENCY_COLORS[(urgency ?? "").toLowerCase()] ?? NEUTRAL_BAR;

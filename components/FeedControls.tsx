@@ -13,7 +13,7 @@ import {
 
 /**
  * Sort and time-window for the feed. Rendered as segmented groups rather than as more chips:
- * the category row is a filter on *what* you see, this is a control on *how it is ordered*,
+ * the chip row is a filter on *what* you see, this is a control on *how it is ordered*,
  * and giving them the same shape would read as one long list of filters.
  */
 export default function FeedControls() {
@@ -67,11 +67,7 @@ export default function FeedControls() {
 
 function Segmented({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div
-      role="group"
-      aria-label={label}
-      className="flex items-center gap-0.5 rounded-full border border-hairline bg-surface p-0.5"
-    >
+    <div role="group" aria-label={label} className="flex items-center gap-0.5 rounded-full bg-surface p-1">
       {children}
     </div>
   );
@@ -90,7 +86,7 @@ function Segment({
     <button
       onClick={onClick}
       aria-pressed={active}
-      className={`rounded-full px-2.5 py-1 font-mono text-[11px] uppercase tracking-wide transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+      className={`rounded-full px-3 py-1 text-[13px] font-medium tabular-nums transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink active:scale-[0.96] ${
         active ? "bg-ink text-paper" : "text-muted hover:text-ink"
       }`}
     >

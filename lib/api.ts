@@ -1,7 +1,7 @@
 import type { ClusterSummary, ClusterRead } from "./types";
 
 // Trailing slashes stripped so `https://host/` doesn't produce `//clusters/`.
-const BASE = (process.env.API_BASE_URL ?? "http://localhost:8000").replace(/\/+$/, "");
+const BASE = (process.env.API_BASE_URL ?? "https://news-back.ameur.dev").replace(/\/+$/, "");
 
 export type FeedSort = "top" | "latest";
 export type FeedWindow = "24h" | "7d" | "30d" | "all";

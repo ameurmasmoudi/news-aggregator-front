@@ -1,6 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { MagnifyingGlass, X } from "@phosphor-icons/react";
 
 export default function SearchBar() {
   const router = useRouter();
@@ -52,39 +53,32 @@ export default function SearchBar() {
 
   return (
     <form onSubmit={submit} role="search" className="relative">
-      <svg
-        className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
+      <MagnifyingGlass
+        size={16}
+        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"
         aria-hidden
-      >
-        <circle cx="11" cy="11" r="7" />
-        <path d="m21 21-4.3-4.3" />
-      </svg>
+      />
       <input
         ref={input}
+        type="search"
         value={q}
         onChange={(e) => setQ(e.target.value)}
         onKeyDown={(e) => e.key === "Escape" && e.currentTarget.blur()}
-        placeholder="Search headlines…"
-        aria-label="Search clusters"
-        className="w-full rounded-full border border-hairline bg-surface py-1.5 pl-9 pr-10 text-sm text-ink placeholder:text-muted focus:border-accent/60 focus:outline-none"
+        placeholder="Search headlines"
+        aria-label="Search stories"
+        className="w-full rounded-full border border-transparent bg-surface py-2 pl-9 pr-10 text-sm text-ink placeholder:text-muted transition-colors focus:border-ink/40 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
       />
       {urlQuery ? (
         <button
           type="button"
           onClick={clear}
           aria-label="Clear search"
-          className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-muted transition-colors hover:bg-white/[0.06] hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+          className="absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-muted hover:bg-surface-2 transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-ink"
         >
-          <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-            <path d="M18 6 6 18M6 6l12 12" />
-          </svg>
+          <X size={14} aria-hidden />
         </button>
       ) : (
-        <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded border border-hairline px-1.5 font-mono text-[10px] text-muted">
+        <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded-md border border-hairline px-1.5 font-mono text-[11px] text-muted">
           /
         </kbd>
       )}
